@@ -1,0 +1,13 @@
+html,
+body {
+  margin: 0;
+}
+
+a {
+  color: rgb(0, 100, 255);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
