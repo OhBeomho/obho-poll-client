@@ -1,4 +1,4 @@
-const SERVER_URL = import.meta.env.DEV ? "http://localhost:5000" : "https://ops.onrender.com";
+const SERVER_URL = import.meta.env.DEV ? "http://localhost:5000" : "https://ops-wswd.onrender.com";
 
 async function check(res: Response) {
   const data = await res.json();
