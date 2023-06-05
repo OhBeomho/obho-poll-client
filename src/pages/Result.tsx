@@ -26,7 +26,7 @@ export default function () {
   const loadPoll = useCallback(() => {
     setPoll(undefined);
 
-    get("/poll/" + pollId)
+    get("/" + pollId)
       .then((data) => setPoll(data.poll))
       .catch(errorHandler);
   }, []);
@@ -38,9 +38,9 @@ export default function () {
     }
 
     if (type === "close") {
-      get(`/poll/close/${pollId}/${password}`).then(loadPoll).catch(errorHandler);
+      get(`/close/${pollId}/${password}`).then(loadPoll).catch(errorHandler);
     } else {
-      del(`/poll/${pollId}/${password}`)
+      del(`/${pollId}/${password}`)
         .then(() => navigate("/"))
         .catch(errorHandler);
     }

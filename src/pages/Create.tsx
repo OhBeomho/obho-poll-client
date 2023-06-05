@@ -56,7 +56,7 @@ export default function () {
         alert("There must be at least 2 options.");
       } else {
         setLoading(true);
-        post("/poll/create", state)
+        post("/create", state)
           .then((data) => {
             const id = data.pollId;
             navigate("/result/" + id);

@@ -31,7 +31,7 @@ export default function () {
       .then((res) => res.json())
       .then((data) => setIp(data.IPv4));
 
-    get("/poll/" + pollId)
+    get("/" + pollId)
       .then((data) => setPoll(data.poll))
       .catch(errorHandler);
   }, []);
@@ -43,7 +43,7 @@ export default function () {
 
     setLoading(true);
 
-    post("/poll/vote/" + pollId, { option: selected, ip })
+    post("/vote/" + pollId, { option: selected, ip })
       .then(() => navigate("/result/" + pollId))
       .catch(errorHandler)
       .finally(() => setLoading(false));
