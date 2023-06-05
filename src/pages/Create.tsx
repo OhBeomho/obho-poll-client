@@ -43,6 +43,7 @@ const initialState: FormState = {
 export default function () {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const onSubmit = useCallback(
@@ -54,12 +55,14 @@ export default function () {
       } else if (state.options.length <= 1) {
         alert("There must be at least 2 options.");
       } else {
+        setLoading(true);
         post("/poll/create", state)
           .then((data) => {
             const id = data.pollId;
             navigate("/result/" + id);
           })
-          .catch(errorHandler);
+          .catch(errorHandler)
+          .finally(() => setLoading(false));
       }
 
       e.preventDefault();
@@ -99,7 +102,11 @@ export default function () {
     </li>
   ));
 
-  return (
+  return loading ? (
+    <Layout>
+      <h1>Loading</h1>
+    </Layout>
+  ) : (
     <Layout>
       <h1>Create new poll</h1>
       <form onSubmit={onSubmit}>

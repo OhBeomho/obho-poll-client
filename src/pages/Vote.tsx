@@ -16,6 +16,7 @@ interface Poll {
 export default function () {
   const [ip, setIp] = useState("");
   const [poll, setPoll] = useState<Poll>();
+  const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(-1);
   const { pollId } = useParams();
   const navigate = useNavigate();
@@ -40,9 +41,12 @@ export default function () {
       return;
     }
 
+    setLoading(true);
+
     post("/poll/vote/" + pollId, { option: selected, ip })
       .then(() => navigate("/result/" + pollId))
-      .catch(errorHandler);
+      .catch(errorHandler)
+      .finally(() => setLoading(false));
   }, [selected, ip]);
 
   const optionElements = poll?.options.map((option, index) => (
@@ -51,7 +55,11 @@ export default function () {
     </li>
   ));
 
-  return poll ? (
+  return loading || !poll ? (
+    <Layout>
+      <h1>Loading...</h1>
+    </Layout>
+  ) : (
     <Layout>
       <h1>
         {!poll.open && <span style={{ color: "gray" }}>[Closed]</span>} {poll.name}
@@ -62,10 +70,6 @@ export default function () {
         {poll.open && <Button onClick={vote}>Vote</Button>}
         <Button onClick={() => navigate("/result/" + pollId)}>Show result</Button>
       </p>
-    </Layout>
-  ) : (
-    <Layout>
-      <h1>Loading...</h1>
     </Layout>
   );
 }
