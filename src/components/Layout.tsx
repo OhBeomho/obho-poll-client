@@ -32,8 +32,6 @@ const Wrapper = styled.div`
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
 `;
 
 const Navbar = styled.nav`
@@ -41,10 +39,16 @@ const Navbar = styled.nav`
   justify-content: space-between;
   align-items: center;
   padding: 15px 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
 
   & .brand {
     color: black;
     font-size: 25px;
+  }
+
+  &:hover {
+    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.12);
   }
 `;
 

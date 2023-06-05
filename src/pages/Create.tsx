@@ -4,10 +4,11 @@ import Input from "../components/Input.styled";
 import Button from "../components/Button.styled";
 import { post } from "../utils/request";
 import { useNavigate } from "react-router-dom";
+import errorHandler from "../utils/errorHandler";
 
 interface FormState {
   name: string;
-  description: string;
+  description?: string;
   options: string[];
   password: string;
 }
@@ -22,7 +23,7 @@ function reducer(state: FormState, action: FormAction): FormState {
     case "name":
       return { ...state, name: action.value };
     case "description":
-      return { ...state, description: action.value };
+      return { ...state, description: action.value || undefined };
     case "options":
       return {
         ...state,
@@ -35,12 +36,10 @@ function reducer(state: FormState, action: FormAction): FormState {
 
 const initialState: FormState = {
   name: "",
-  description: "",
   options: [],
   password: ""
 };
 
-// TODO: Test it
 export default function () {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [showPassword, setShowPassword] = useState(false);
@@ -48,24 +47,20 @@ export default function () {
 
   const onSubmit = useCallback(
     (e: React.FormEvent) => {
-      post("/poll/create", state)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.code !== 200) {
-            throw new Error(data.error);
-          }
-
-          const id = data.pollId;
-          navigate("/result/" + id);
-        })
-        .catch((err) => {
-          if (err instanceof Error) {
-            err = err.message;
-          }
-
-          alert("오류가 발생하였습니다.");
-          console.error(err);
-        });
+      if (!state.name) {
+        alert("Please enter poll name.");
+      } else if (!state.password) {
+        alert("Please enter poll password.");
+      } else if (state.options.length <= 1) {
+        alert("There must be at least 2 options.");
+      } else {
+        post("/poll/create", state)
+          .then((data) => {
+            const id = data.pollId;
+            navigate("/result/" + id);
+          })
+          .catch(errorHandler);
+      }
 
       e.preventDefault();
     },

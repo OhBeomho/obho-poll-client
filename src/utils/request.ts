@@ -1,9 +1,35 @@
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL = import.meta.env.DEV ? "http://localhost:5000" : "https://ops.fly.dev";
+
+async function check(res: Response) {
+  const data = await res.json();
+
+  if (res.status !== 200) {
+    console.log(data);
+
+    const errorMessage = data.error;
+    throw new Error(`Code ${res.status} - ${errorMessage}`);
+  }
+
+  return data;
+}
 
 export async function get(url: string) {
-  return fetch(SERVER_URL + url);
+  const res = await fetch(SERVER_URL + url);
+  return check(res);
+}
+
+export async function del(url: string) {
+  const res = await fetch(SERVER_URL + url, { method: "delete" });
+  return check(res);
 }
 
 export async function post(url: string, data: any) {
-  return fetch(SERVER_URL + url, { method: "post", body: JSON.stringify(data) });
+  const res = await fetch(SERVER_URL + url, {
+    method: "post",
+    body: JSON.stringify(data),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+  return check(res);
 }

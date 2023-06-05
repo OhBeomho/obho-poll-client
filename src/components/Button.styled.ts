@@ -5,9 +5,11 @@ const Button = styled.button`
   background-color: lightgray;
   border-radius: 8px;
   transition: all 0.2s;
+  padding: 8px;
+  margin: 4px;
 
   &:hover {
-    box-shadow: 0 0 0 1.5px darkgray;
+    box-shadow: 0 2px 0 0 darkgray;
   }
 
   &:active {
