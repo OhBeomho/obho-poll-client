@@ -14,7 +14,7 @@ const Input = styled.input`
 
   &:focus {
     border-radius: 8px;
-    border: 1.7px solid gray;
+    border: 2px solid gray;
   }
 `;
 
