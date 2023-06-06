@@ -44,6 +44,7 @@ export default function () {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const onSubmit = useCallback(
@@ -61,7 +62,7 @@ export default function () {
             const id = data.pollId;
             navigate("/result/" + id);
           })
-          .catch(errorHandler)
+          .catch((err) => errorHandler(err, () => setError(err.message)))
           .finally(() => setLoading(false));
       }
 
@@ -102,7 +103,12 @@ export default function () {
     </li>
   ));
 
-  return loading ? (
+  return error ? (
+    <Layout>
+      <h1 style={{ color: "red" }}>{error}</h1>
+      <Button onClick={() => navigate("/")}>Home</Button>
+    </Layout>
+  ) : loading ? (
     <Layout>
       <h1>Loading</h1>
     </Layout>

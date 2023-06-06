@@ -15,20 +15,21 @@ interface Poll {
 
 export default function () {
   const [poll, setPoll] = useState<Poll>();
+  const [error, setError] = useState("");
   const { pollId } = useParams();
   const navigate = useNavigate();
 
-  if (!pollId) {
-    navigate("/");
-    return <div></div>;
-  }
-
   const loadPoll = useCallback(() => {
+    if (!pollId) {
+      navigate("/");
+      return;
+    }
+
     setPoll(undefined);
 
     get("/" + pollId)
       .then((data) => setPoll(data.poll))
-      .catch(errorHandler);
+      .catch((err) => errorHandler(err, () => setError(err.message)));
   }, []);
 
   const closeOrDeletePoll = useCallback((type: "close" | "delete") => {
@@ -42,7 +43,7 @@ export default function () {
     } else {
       del(`/${pollId}/${password}`)
         .then(() => navigate("/"))
-        .catch(errorHandler);
+        .catch((err) => errorHandler(err, () => setError(err.message)));
     }
   }, []);
 
@@ -75,7 +76,12 @@ export default function () {
     });
   }
 
-  return poll ? (
+  return error ? (
+    <Layout>
+      <h1 style={{ color: "red" }}>{error}</h1>
+      <Button onClick={() => navigate("/")}>Home</Button>
+    </Layout>
+  ) : poll ? (
     <Layout>
       <h1>
         {!poll.open && <span style={{ color: "gray" }}>[Closed]</span>} {poll.name} - Result
