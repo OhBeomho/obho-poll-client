@@ -43,7 +43,7 @@ export default function () {
 
     setLoading(true);
 
-    post("/vote/" + pollId, { option: selected, ip }, { mode: "no-cors" })
+    post("/vote/" + pollId, { option: selected, ip })
       .then(() => navigate("/result/" + pollId))
       .catch(errorHandler)
       .finally(() => setLoading(false));
