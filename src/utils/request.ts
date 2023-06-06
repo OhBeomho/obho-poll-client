@@ -23,13 +23,14 @@ export async function del(url: string) {
   return check(res);
 }
 
-export async function post(url: string, data: any) {
+export async function post(url: string, data: any, options?: any) {
   const res = await fetch(SERVER_URL + url, {
     method: "post",
     body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json"
-    }
+    },
+    ...options
   });
   return check(res);
 }
