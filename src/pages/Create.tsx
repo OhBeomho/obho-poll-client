@@ -44,6 +44,8 @@ export default function () {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [addValue, setAddValue] = useState("");
   const navigate = useNavigate();
 
   const onSubmit = useCallback(
@@ -70,37 +72,64 @@ export default function () {
     [state]
   );
 
-  const addOption = useCallback(() => {
-    const option = prompt("Enter new option");
+  const addOption = useCallback(
+    (option: string) => {
+      state.options.push(option);
+      dispatch({
+        type: "options",
+        value: JSON.stringify(state.options)
+      });
 
-    if (!option) {
+      setAdding(false);
+    },
+    [state]
+  );
+
+  const onAdd = useCallback(() => {
+    if (!addValue) {
+      return;
+    } else if (state.options.includes(addValue)) {
+      alert(`You already have option '${addValue}'`);
       return;
     }
 
-    state.options.push(option);
-    dispatch({
-      type: "options",
-      value: JSON.stringify(state.options)
-    });
-  }, [state]);
+    addOption(addValue);
+    setAdding(false);
+  }, [addValue, state]);
+
+  const onRemove = useCallback(
+    (index: number) => {
+      state.options.splice(index, 1);
+      dispatch({
+        type: "options",
+        value: JSON.stringify(state.options)
+      });
+    },
+    [state]
+  );
 
   const optionElements = state.options.map((option, index) => (
     <li key={index}>
       {option}
-      <Button
-        type="button"
-        onClick={() => {
-          state.options.splice(index, 1);
-          dispatch({
-            type: "options",
-            value: JSON.stringify(state.options)
-          });
-        }}
-      >
+      <Button type="button" onClick={() => onRemove(index)}>
         Remove
       </Button>
     </li>
   ));
+
+  if (adding) {
+    optionElements.push(
+      <li key={optionElements.length}>
+        <Input onChange={(e) => setAddValue(e.target.value)} />
+        <Button type="button" onClick={onAdd}>
+          Add
+        </Button>
+        <Button type="button" onClick={() => setAdding(false)}>
+          Cancel
+        </Button>
+      </li>
+    );
+  }
 
   return loading ? (
     <Layout>
@@ -142,7 +171,7 @@ export default function () {
               <td>Options</td>
               <td>
                 <ul>{optionElements}</ul>
-                <Button type="button" onClick={addOption}>
+                <Button type="button" onClick={() => setAdding(true)} disabled={adding}>
                   Add new option
                 </Button>
               </td>
