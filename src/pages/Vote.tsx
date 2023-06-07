@@ -18,22 +18,23 @@ export default function () {
   const [poll, setPoll] = useState<Poll>();
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(-1);
+  const [error, setError] = useState("");
   const { pollId } = useParams();
   const navigate = useNavigate();
 
-  if (!pollId) {
-    navigate("/");
-    return <div></div>;
-  }
-
   useEffect(() => {
+    if (!pollId) {
+      navigate("/");
+      return;
+    }
+
     fetch("https://geolocation-db.com/json/")
       .then((res) => res.json())
       .then((data) => setIp(data.IPv4));
 
     get("/" + pollId)
       .then((data) => setPoll(data.poll))
-      .catch(errorHandler);
+      .catch((err) => errorHandler(err, () => setError(err.message)));
   }, []);
 
   const vote = useCallback(() => {
@@ -45,7 +46,7 @@ export default function () {
 
     post("/vote/" + pollId, { option: selected, ip })
       .then(() => navigate("/result/" + pollId))
-      .catch(errorHandler)
+      .catch((err) => errorHandler(err, () => setError(err.message)))
       .finally(() => setLoading(false));
   }, [selected, ip]);
 
@@ -55,7 +56,12 @@ export default function () {
     </li>
   ));
 
-  return loading || !poll ? (
+  return error ? (
+    <Layout>
+      <h1 style={{ color: "red" }}>{error}</h1>
+      <Button onClick={() => navigate("/")}>Home</Button>
+    </Layout>
+  ) : loading || !poll ? (
     <Layout>
       <h1>Loading...</h1>
     </Layout>
