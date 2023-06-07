@@ -59,7 +59,7 @@ export default function () {
   return error ? (
     <Layout>
       <h1 style={{ color: "red" }}>{error}</h1>
-      <Button onClick={() => navigate("/")}>Home</Button>
+      <Button onClick={() => navigate(-1)}>Back</Button>
     </Layout>
   ) : loading || !poll ? (
     <Layout>
