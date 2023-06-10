@@ -59,7 +59,7 @@ export default function () {
 
   let max = 0;
   let optionElements;
-  let passwordInput;
+  let passwordInput = <div></div>;
 
   if (poll) {
     const counts = new Map();
@@ -123,13 +123,16 @@ export default function () {
       </p>
       <ul>{optionElements}</ul>
       <p>
-        <Button onClick={() => setInputPassword("close")} disabled={inputPassword !== ""}>
-          Close poll
-        </Button>
-        <Button onClick={() => setInputPassword("delete")} disabled={inputPassword !== ""}>
-          Delete poll
-        </Button>
-        <br />
+        <p>
+          <Button onClick={() => setInputPassword("close")} disabled={inputPassword !== ""}>
+            Close poll
+          </Button>
+          <Button onClick={() => setInputPassword("delete")} disabled={inputPassword !== ""}>
+            Delete poll
+          </Button>
+          <br />
+          {passwordInput}
+        </p>
         <Button
           onClick={() => {
             navigator.clipboard.writeText(`${window.location.origin}?p=${pollId}`);
