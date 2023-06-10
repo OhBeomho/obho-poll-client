@@ -59,7 +59,6 @@ export default function () {
 
   let max = 0;
   let optionElements;
-  let passwordInput = <div></div>;
 
   if (poll) {
     const counts = new Map();
@@ -85,28 +84,6 @@ export default function () {
     });
   }
 
-  if (inputPassword) {
-    passwordInput = (
-      <div>
-        <p>
-          <Input
-            onChange={(e) => setPassword(e.target.value)}
-            type={showPassword ? "text" : "password"}
-          />
-          <Button onClick={() => setShowPassword((old) => !old)}>
-            {showPassword ? "Hide" : "Show"}
-          </Button>
-        </p>
-        <p>
-          <Button onClick={() => setInputPassword("")}>Cancel</Button>
-          <Button onClick={() => closeOrDeletePoll(inputPassword as "close" | "delete")}>
-            Confirm
-          </Button>
-        </p>
-      </div>
-    );
-  }
-
   return error ? (
     <Layout>
       <h1 style={{ color: "red" }}>{error}</h1>
@@ -130,7 +107,27 @@ export default function () {
           Delete poll
         </Button>
         <br />
-        {passwordInput}
+        {inputPassword && (
+          <div>
+            <p>
+              Enter your password
+              <br />
+              <Input
+                onChange={(e) => setPassword(e.target.value)}
+                type={showPassword ? "text" : "password"}
+              />
+              <Button onClick={() => setShowPassword((old) => !old)}>
+                {showPassword ? "Hide" : "Show"}
+              </Button>
+            </p>
+            <p>
+              <Button onClick={() => setInputPassword("")}>Cancel</Button>
+              <Button onClick={() => closeOrDeletePoll(inputPassword as "close" | "delete")}>
+                Confirm
+              </Button>
+            </p>
+          </div>
+        )}
       </p>
       <h2 style={{ marginBottom: 0 }}>Share</h2>
       <p>
