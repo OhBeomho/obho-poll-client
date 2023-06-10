@@ -4,6 +4,7 @@ import { del, get } from "../utils/request";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button.styled";
 import errorHandler from "../utils/errorHandler";
+import Input from "../components/Input.styled";
 
 interface Poll {
   name: string;
@@ -16,6 +17,9 @@ interface Poll {
 export default function () {
   const [poll, setPoll] = useState<Poll>();
   const [error, setError] = useState("");
+  const [password, setPassword] = useState("");
+  const [inputPassword, setInputPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { pollId } = useParams();
   const navigate = useNavigate();
 
@@ -32,25 +36,30 @@ export default function () {
       .catch((err) => errorHandler(err, () => setError(err.message)));
   }, []);
 
-  const closeOrDeletePoll = useCallback((type: "close" | "delete") => {
-    const password = prompt("Please enter your password.");
-    if (!password) {
-      return;
-    }
+  const closeOrDeletePoll = useCallback(
+    (type: "close" | "delete") => {
+      if (!password) {
+        return;
+      }
 
-    if (type === "close") {
-      get(`/close/${pollId}/${password}`).then(loadPoll).catch(errorHandler);
-    } else {
-      del(`/${pollId}/${password}`)
-        .then(() => navigate("/"))
-        .catch((err) => errorHandler(err, () => setError(err.message)));
-    }
-  }, []);
+      if (type === "close") {
+        get(`/close/${pollId}/${password}`).then(loadPoll).catch(errorHandler);
+      } else {
+        del(`/${pollId}/${password}`)
+          .then(() => navigate("/"))
+          .catch((err) => errorHandler(err, () => setError(err.message)));
+      }
+
+      setInputPassword("");
+    },
+    [password]
+  );
 
   useEffect(loadPoll, []);
 
   let max = 0;
   let optionElements;
+  let passwordInput;
 
   if (poll) {
     const counts = new Map();
@@ -76,6 +85,28 @@ export default function () {
     });
   }
 
+  if (inputPassword) {
+    passwordInput = (
+      <div>
+        <p>
+          <Input
+            onChange={(e) => setPassword(e.target.value)}
+            type={showPassword ? "text" : "password"}
+          />
+          <Button onClick={() => setShowPassword((old) => !old)}>
+            {showPassword ? "Hide" : "Show"}
+          </Button>
+        </p>
+        <p>
+          <Button onClick={() => setInputPassword("")}>Cancel</Button>
+          <Button onClick={() => closeOrDeletePoll(inputPassword as "close" | "delete")}>
+            Confirm
+          </Button>
+        </p>
+      </div>
+    );
+  }
+
   return error ? (
     <Layout>
       <h1 style={{ color: "red" }}>{error}</h1>
@@ -92,8 +123,12 @@ export default function () {
       </p>
       <ul>{optionElements}</ul>
       <p>
-        <Button onClick={() => closeOrDeletePoll("close")}>Close poll</Button>
-        <Button onClick={() => closeOrDeletePoll("delete")}>Delete poll</Button>
+        <Button onClick={() => setInputPassword("close")} disabled={inputPassword !== ""}>
+          Close poll
+        </Button>
+        <Button onClick={() => setInputPassword("delete")} disabled={inputPassword !== ""}>
+          Delete poll
+        </Button>
         <br />
         <Button
           onClick={() => {
