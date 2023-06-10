@@ -1,4 +1,4 @@
-import { useCallback, useReducer, useState } from "react";
+import { useCallback, useEffect, useReducer, useState } from "react";
 import Layout from "../components/Layout";
 import Input from "../components/Input.styled";
 import Button from "../components/Button.styled";
@@ -40,10 +40,30 @@ const initialState: FormState = {
   password: ""
 };
 
+const conditions = [
+  {
+    condition: /\w{6,}/g,
+    text: "At least 6 characters"
+  },
+  {
+    condition: /[a-zA-Z]/g,
+    text: "Alphabets"
+  },
+  {
+    condition: /[0-9]/g,
+    text: "Numbers"
+  },
+  {
+    condition: /[!@#$%^&*()?]/g,
+    text: "At least 1 special characters"
+  }
+];
+
 export default function () {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [pass, setPass] = useState<boolean[]>([]);
   const [error, setError] = useState("");
   const [adding, setAdding] = useState(false);
   const [addValue, setAddValue] = useState("");
@@ -52,11 +72,13 @@ export default function () {
   const onSubmit = useCallback(
     (e: React.FormEvent) => {
       if (!state.name) {
-        alert("Please enter poll name.");
+        setError("Please enter the name of the poll.");
       } else if (!state.password) {
-        alert("Please enter poll password.");
+        setError("Please enter the password.");
+      } else if (pass.some((p) => !p)) {
+        setError("The password doesn't meet the conditions.");
       } else if (state.options.length <= 1) {
-        alert("There must be at least 2 options.");
+        setError("There must be at least 2 options.");
       } else {
         setLoading(true);
         post("/create", state)
@@ -70,7 +92,7 @@ export default function () {
 
       e.preventDefault();
     },
-    [state]
+    [state, pass]
   );
 
   const addOption = useCallback(
@@ -90,7 +112,7 @@ export default function () {
     if (!addValue) {
       return;
     } else if (state.options.includes(addValue)) {
-      alert(`You already have option '${addValue}'`);
+      setError(`You already have option '${addValue}'`);
       return;
     }
 
@@ -109,6 +131,21 @@ export default function () {
     [state]
   );
 
+  useEffect(() => {
+    if (state.password) {
+      const pass: boolean[] = [];
+      for (let c of conditions) {
+        pass.push(c.condition.test(state.password));
+
+        c.condition.lastIndex = 0;
+      }
+
+      setPass(pass);
+    }
+
+    setError("");
+  }, [state]);
+
   const optionElements = state.options.map((option, index) => (
     <li key={index}>
       {option}
@@ -118,10 +155,16 @@ export default function () {
     </li>
   ));
 
+  const passElements = pass.map((p, index) => (
+    <li key={index} style={{ color: p ? "rgb(0, 200, 0)" : "rgb(200, 0, 0)" }}>
+      {conditions[index].text}
+    </li>
+  ));
+
   if (adding) {
     optionElements.push(
       <li key={optionElements.length}>
-        <Input onChange={(e) => setAddValue(e.target.value)} />
+        <Input onChange={(e) => setAddValue(e.target.value)} autoFocus />
         <Button type="button" onClick={onAdd}>
           Add
         </Button>
@@ -132,14 +175,9 @@ export default function () {
     );
   }
 
-  return error ? (
+  return loading ? (
     <Layout>
-      <h1 style={{ color: "red" }}>{error}</h1>
-      <Button onClick={() => navigate(-1)}>Back</Button>
-    </Layout>
-  ) : loading ? (
-    <Layout>
-      <h1>Loading</h1>
+      <h1>Loading...</h1>
     </Layout>
   ) : (
     <Layout>
@@ -150,7 +188,10 @@ export default function () {
             <tr>
               <td>Poll Name</td>
               <td>
-                <Input onChange={(e) => dispatch({ type: "name", value: e.target.value })} />
+                <Input
+                  onChange={(e) => dispatch({ type: "name", value: e.target.value })}
+                  value={state.name}
+                />
               </td>
             </tr>
             <tr>
@@ -158,7 +199,10 @@ export default function () {
                 Description <span style={{ color: "gray" }}>(Optional)</span>
               </td>
               <td>
-                <Input onChange={(e) => dispatch({ type: "description", value: e.target.value })} />
+                <Input
+                  onChange={(e) => dispatch({ type: "description", value: e.target.value })}
+                  value={state.description || ""}
+                />
               </td>
             </tr>
             <tr>
@@ -166,13 +210,23 @@ export default function () {
               <td>
                 <Input
                   type={showPassword ? "text" : "password"}
-                  onChange={(e) => dispatch({ type: "password", value: e.target.value })}
+                  onInput={(e) =>
+                    dispatch({ type: "password", value: (e.target as HTMLInputElement).value })
+                  }
+                  value={state.password}
                 />
                 <Button type="button" onClick={() => setShowPassword((old) => !old)}>
                   {showPassword ? "Hide" : "Show"}
                 </Button>
               </td>
             </tr>
+            {state.password && (
+              <tr>
+                <td>
+                  <ul>{passElements}</ul>
+                </td>
+              </tr>
+            )}
             <tr>
               <td>Options</td>
               <td>
@@ -182,6 +236,11 @@ export default function () {
                 </Button>
               </td>
             </tr>
+            {error && (
+              <tr>
+                <td style={{ color: "rgb(200, 0, 0)" }}>{error}</td>
+              </tr>
+            )}
             <tr>
               <td colSpan={2}>
                 <Button type="submit">Create</Button>
