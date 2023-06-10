@@ -133,6 +133,7 @@ export default function () {
           <br />
           {passwordInput}
         </p>
+        <h2>Share</h2>
         <Button
           onClick={() => {
             navigator.clipboard.writeText(`${window.location.origin}?p=${pollId}`);
