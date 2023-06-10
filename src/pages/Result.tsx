@@ -123,17 +123,17 @@ export default function () {
       </p>
       <ul>{optionElements}</ul>
       <p>
-        <p>
-          <Button onClick={() => setInputPassword("close")} disabled={inputPassword !== ""}>
-            Close poll
-          </Button>
-          <Button onClick={() => setInputPassword("delete")} disabled={inputPassword !== ""}>
-            Delete poll
-          </Button>
-          <br />
-          {passwordInput}
-        </p>
-        <h2>Share</h2>
+        <Button onClick={() => setInputPassword("close")} disabled={inputPassword !== ""}>
+          Close poll
+        </Button>
+        <Button onClick={() => setInputPassword("delete")} disabled={inputPassword !== ""}>
+          Delete poll
+        </Button>
+        <br />
+        {passwordInput}
+      </p>
+      <h2>Share</h2>
+      <p>
         <Button
           onClick={() => {
             navigator.clipboard.writeText(`${window.location.origin}?p=${pollId}`);
