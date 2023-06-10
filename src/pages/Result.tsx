@@ -46,7 +46,10 @@ export default function () {
         get(`/close/${pollId}/${password}`).then(loadPoll).catch(errorHandler);
       } else {
         del(`/${pollId}/${password}`)
-          .then(() => navigate("/"))
+          .then(() => {
+            alert("Poll deleted successfully.");
+            navigate("/");
+          })
           .catch((err) => errorHandler(err, () => setError(err.message)));
       }
 
