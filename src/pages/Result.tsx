@@ -132,7 +132,7 @@ export default function () {
         <br />
         {passwordInput}
       </p>
-      <h2>Share</h2>
+      <h2 style={{ marginBottom: 0 }}>Share</h2>
       <p>
         <Button
           onClick={() => {
